@@ -19,7 +19,7 @@ class PaymentController extends Controller
         ]);
 
         if ($validator->fails()) {
-            return response()->json(['message' => "Check your data format. Something's wrong..."], 400);
+            return response()->json(['message' => "Check your data. Something's wrong..."], 400);
         }
 
         // process before payment
@@ -36,5 +36,7 @@ class PaymentController extends Controller
 
             return response()->json($paymentIntent['client_secret'], 200);
         }
+
+        return response()->json(['message' => "Something went wrong."], 400);
     }
 }
