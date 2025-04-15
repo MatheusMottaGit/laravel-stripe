@@ -25,8 +25,8 @@ class CheckoutSessionController extends Controller
                 'quantity' => 1,
             ]],
             'mode' => 'payment',
-            'success_url' => 'http://localhost:3000/success?session_id={CHECKOUT_SESSION_ID}',
-            'cancel_url' => 'http://localhost:3000/cancel',
+            'success_url' => 'http://localhost:5173/success?session_id={CHECKOUT_SESSION_ID}',
+            'cancel_url' => 'http://localhost:5173/cancel',
         ]);
 
         return response()->json([
