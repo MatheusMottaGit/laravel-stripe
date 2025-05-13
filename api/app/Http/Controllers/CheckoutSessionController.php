@@ -2,7 +2,9 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
+use App\Models\User;
+use App\Http\Requests\CreateCheckoutSessionRequest;
+use Log;
 
 class CheckoutSessionController extends Controller
 {
@@ -12,21 +14,29 @@ class CheckoutSessionController extends Controller
         $this->stripe = new \Stripe\StripeClient(env('STRIPE_SECRET'));
     }
 
-    public function createCheckoutSession(Request $request)
+    public function createCheckoutSession(CreateCheckoutSessionRequest $request)
     {
-        $request->validate([
-            'price_id' => 'required|string',
-        ]);
+        $validated = $request->validated();
+        $user = User::where('id', $validated['user_id'])->first();
+
+        if(!$user) {
+            return response()->json(['message' => "This user don't exists."], 404);
+        }
         
         $checkout_session = $this->stripe->checkout->sessions->create([
-            'payment_method_types' => ['card'],
+            'payment_method_types' => [
+                'card'
+            ],
             'line_items' => [[
-                'price' => $request->price_id,
-                'quantity' => 1,
+                'price' => $validated['price_id'],
+                'quantity' => 1, // for a while only test one item
             ]],
             'mode' => 'payment',
-            'success_url' => 'http://localhost:5173/success?session_id={CHECKOUT_SESSION_ID}',
-            'cancel_url' => 'http://localhost:5173/cancel',
+            'success_url' => 'http://localhost:3000/success?session_id={CHECKOUT_SESSION_ID}',
+            'cancel_url' => 'http://localhost:3000/cancel',
+            'metadata' => [
+                'user_id' => $user['id'],
+            ],
         ]);
 
         return response()->json([
@@ -35,18 +45,14 @@ class CheckoutSessionController extends Controller
         ]);
     }
 
-    public function verifySession(Request $request)
+    public function verifySession(string $sessionId)
     {
-        $request->validate([
-            'session_id' => 'required|string',
-        ]);
-
         try {
-            $session = $this->stripe->checkout->sessions->retrieve($request->session_id);
-            return response()->json($session);
+            $session = $this->stripe->checkout->sessions->retrieve($sessionId);
+            // Log::debug($session);
+            return response()->json(['data' => $session]);
         } catch (\Exception $e) {
             return response()->json(['error' => 'Session not found'], 404);
         }
-        
     }
 }

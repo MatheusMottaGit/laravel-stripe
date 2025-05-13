@@ -38,11 +38,10 @@ function Home() {
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ price_id: priceId }),
+      body: JSON.stringify({ price_id: priceId, user_id: 1 }),
     })
 
     const data = await response.json()
-    console.log(data)
 
     window.location.href = data.url
   }
@@ -54,7 +53,7 @@ function Home() {
 
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
           {products.map((product) => (
-            <div key={product.id} className="bg-white rounded-2xl shadow-md p-4 hover:shadow-lg transition">
+            <div key={product.price_id} className="bg-white rounded-2xl shadow-md p-4 hover:shadow-lg transition">
               <img
                 src={product.image}
                 alt={product.name}

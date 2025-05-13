@@ -29,7 +29,6 @@ class ProductController extends Controller
                     'price_id' => $price->data[0]->id,
                 ];
             }
-            
             return response()->json($productsData, 200);
         } catch (\Exception $e) {
             return response()->json(['error' => $e->getMessage()], 500);
